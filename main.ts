@@ -1,4 +1,4 @@
-import { App, Editor, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Editor, MarkdownView, Plugin, PluginSettingTab, Setting, TFile } from 'obsidian';
 import { format } from 'date-fns';
 
 interface InsertTodaySettings {
@@ -6,7 +6,7 @@ interface InsertTodaySettings {
 }
 
 const DEFAULT_SETTINGS: InsertTodaySettings = {
-	format: 'yyyy-MM-dd HH:mm:ss'
+	format: 'yyyy-MM-dd'
 }
 
 export default class InsertToday extends Plugin {
@@ -20,13 +20,24 @@ export default class InsertToday extends Plugin {
 			name: 'Insert today\'s date',
 			hotkeys: [
 				{
-					modifiers: ['Mod', 'Shift'],
-					key: ';'
+					modifiers: ['Mod', 'Alt'],
+					key: 'i'
 				}
 			],
-			editorCallback: (editor: Editor) => {
+			callback: () => {
 				const now = new Date();
-				editor.replaceSelection(format(now, this.settings.format));
+				const formattedDate = format(now, this.settings.format);
+
+				const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
+				if (activeView && activeView.editor.hasFocus()) {
+					activeView.editor.replaceSelection(formattedDate);
+				} else {
+					const activeFile = this.app.workspace.getActiveFile();
+					if (activeFile) {
+						const newName = formattedDate + activeFile.basename + ".md";
+						this.app.fileManager.renameFile(activeFile, newName);
+					}
+				}
 			}
 		});
 

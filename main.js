@@ -1471,7 +1471,7 @@ function cleanEscapedString(input) {
 
 // main.ts
 var DEFAULT_SETTINGS = {
-  format: "yyyy-MM-dd HH:mm:ss"
+  format: "yyyy-MM-dd"
 };
 var InsertToday = class extends import_obsidian.Plugin {
   async onload() {
@@ -1481,13 +1481,23 @@ var InsertToday = class extends import_obsidian.Plugin {
       name: "Insert today's date",
       hotkeys: [
         {
-          modifiers: ["Mod", "Shift"],
-          key: ";"
+          modifiers: ["Mod", "Alt"],
+          key: "i"
         }
       ],
-      editorCallback: (editor) => {
+      callback: () => {
         const now = new Date();
-        editor.replaceSelection(format(now, this.settings.format));
+        const formattedDate = format(now, this.settings.format);
+        const activeView = this.app.workspace.getActiveViewOfType(import_obsidian.MarkdownView);
+        if (activeView && activeView.editor.hasFocus()) {
+          activeView.editor.replaceSelection(formattedDate);
+        } else {
+          const activeFile = this.app.workspace.getActiveFile();
+          if (activeFile) {
+            const newName = formattedDate + activeFile.basename + ".md";
+            this.app.fileManager.renameFile(activeFile, newName);
+          }
+        }
       }
     });
     this.addSettingTab(new InsertTodaySettingTab(this.app, this));
