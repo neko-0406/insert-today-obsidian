@@ -1,0 +1,10 @@
+{
+    "id": "insert-today",
+    "name": "Insert Today",
+    "version": "1.0.0",
+    "minAppVersion": "0.15.0",
+    "description": "A simple example plugin that shows a notice.",
+    "author": "Gemini",
+    "authorUrl": "",
+    "isDesktopOnly": false
+}
